@@ -9,7 +9,10 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NETVisualizer.Layouts.Fruch
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NETVisualizer.Demo", "NETVisualizer.Demo\NETVisualizer.Demo.csproj", "{06A2C156-8794-46A7-BFC4-D3C6D25EF016}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NETVisualizer.SimpleNetwork", "NETVisualizer.SimpleNetwork\NETVisualizer.SimpleNetwork.csproj", "{53F0D5C9-5FBF-484E-B30D-90F4185C8011}"
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{D9887B1B-AE7E-4C9C-960A-17DE9613F390}"
+	ProjectSection(SolutionItems) = preProject
+		README.md = README.md
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -51,16 +54,6 @@ Global
 		{06A2C156-8794-46A7-BFC4-D3C6D25EF016}.Release|Mixed Platforms.Build.0 = Release|x86
 		{06A2C156-8794-46A7-BFC4-D3C6D25EF016}.Release|x86.ActiveCfg = Release|x86
 		{06A2C156-8794-46A7-BFC4-D3C6D25EF016}.Release|x86.Build.0 = Release|x86
-		{53F0D5C9-5FBF-484E-B30D-90F4185C8011}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{53F0D5C9-5FBF-484E-B30D-90F4185C8011}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{53F0D5C9-5FBF-484E-B30D-90F4185C8011}.Debug|Mixed Platforms.ActiveCfg = Debug|Any CPU
-		{53F0D5C9-5FBF-484E-B30D-90F4185C8011}.Debug|Mixed Platforms.Build.0 = Debug|Any CPU
-		{53F0D5C9-5FBF-484E-B30D-90F4185C8011}.Debug|x86.ActiveCfg = Debug|Any CPU
-		{53F0D5C9-5FBF-484E-B30D-90F4185C8011}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{53F0D5C9-5FBF-484E-B30D-90F4185C8011}.Release|Any CPU.Build.0 = Release|Any CPU
-		{53F0D5C9-5FBF-484E-B30D-90F4185C8011}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
-		{53F0D5C9-5FBF-484E-B30D-90F4185C8011}.Release|Mixed Platforms.Build.0 = Release|Any CPU
-		{53F0D5C9-5FBF-484E-B30D-90F4185C8011}.Release|x86.ActiveCfg = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

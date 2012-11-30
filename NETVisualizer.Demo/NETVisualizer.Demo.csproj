@@ -44,6 +44,7 @@
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
+    <Reference Include="System.Drawing" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="Microsoft.CSharp" />
@@ -53,15 +54,12 @@
   <ItemGroup>
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="SimpleNetwork.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\NetVisualizer.Layouts.FruchtermanReingold\NETVisualizer.Layouts.FruchtermanReingold.csproj">
       <Project>{E2987071-9308-40DF-AAE9-06AC486DA060}</Project>
       <Name>NETVisualizer.Layouts.FruchtermanReingold</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\NETVisualizer.SimpleNetwork\NETVisualizer.SimpleNetwork.csproj">
-      <Project>{53F0D5C9-5FBF-484E-B30D-90F4185C8011}</Project>
-      <Name>NETVisualizer.SimpleNetwork</Name>
     </ProjectReference>
     <ProjectReference Include="..\NETVisualizer\NETVisualizer.csproj">
       <Project>{309DE3D4-C06F-47EE-8A03-4F29F46E36E1}</Project>

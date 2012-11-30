@@ -338,7 +338,7 @@ namespace NETVisualizer
 		{
 			base.OnUpdateFrame(e); 					
  
-			Title = "NETVisualizer ("+ FPSCounter.GetFps(e.Time).ToString() + " fps)";
+			Title = string.Format("NETVisualizer ({0} fps, {1} nodes, {2} edges)", FPSCounter.GetFps(e.Time), _network.GetVertexCount(), _network.GetEdgeCount());
 		}
 
         /// <summary>

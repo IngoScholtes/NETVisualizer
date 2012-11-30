@@ -1,0 +1,49 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<ClassDiagram MajorVersion="1" MinorVersion="1">
+  <Class Name="NETVisualizer.FPSCounter" Collapsed="true">
+    <Position X="0.75" Y="5" Width="2.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAgAAAAAAAEAAAAAAAAAAAAAAEQAAAAAAA=</HashCode>
+      <FileName>FPSCounter.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="NETVisualizer.LayoutProvider">
+    <Position X="6.75" Y="5.25" Width="2.5" />
+    <TypeIdentifier>
+      <HashCode>AAEQCAAABAAAAAAAAAAAAEAAAAAAAAAAAAACAAQAAAA=</HashCode>
+      <FileName>LayoutProvider.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="NETVisualizer.NetworkColorizer">
+    <Position X="6.75" Y="1.5" Width="2.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAgIQAAAAAAAAACBAgAAAAICAAAAAAAAAAAAkAAAA=</HashCode>
+      <FileName>NetworkColorizer.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="NETVisualizer.Renderer">
+    <Position X="3.5" Y="1.5" Width="3" />
+    <Compartments>
+      <Compartment Name="Fields" Collapsed="true" />
+    </Compartments>
+    <TypeIdentifier>
+      <HashCode>AgRBSACEACQVAiICRAAQAAACAEQwACoIQAgCEIAggAg=</HashCode>
+      <FileName>Renderer.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Interface Name="NETVisualizer.IRenderableNet">
+    <Position X="0.75" Y="1.5" Width="2.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAQAAAAQCAAIAAAAEAAAAAAAAAAAABIAAAAAAAA=</HashCode>
+      <FileName>IRenderableNet.cs</FileName>
+    </TypeIdentifier>
+  </Interface>
+  <Delegate Name="NETVisualizer.VertexChangedHandler" Collapsed="true">
+    <Position X="0.75" Y="4.25" Width="2.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAACAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>IRenderableNet.cs</FileName>
+    </TypeIdentifier>
+  </Delegate>
+  <Font Name="Segoe UI" Size="9" />
+</ClassDiagram>
