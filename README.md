@@ -15,8 +15,13 @@ Main features
 - Full mouse control allows panning, zooming and selection of nodes
 - Fully customizable coloring of background, nodes and edges 
 - Node and edge sizes and colors can be conveniently and dynamically computed based on elegant lambda expression interface
-- No external dependencies except OpenTK (libraries includes) 
+- No external dependencies except OpenTK (libraries included) 
 - Fully documented: Each method and field is explained and in-method comments help you to understand and extend the existing code
-- Platform-independent, runs on Windows, MacOS X and Linux
+- Integrated, maximally demo that can be used as boilerplate code for your own project
+- Platform-independent, built on OpenTK, runs on Windows, MacOS X and Linux
 
+A screenshot of the OpenTK visualization window is shown below:
 
+![Screenshot of the NETVisualizer demo included in the project](https://dl.dropbox.com/u/10482894/Screenshot_NetVisualizer.png)
+
+Have fun and feel free to send me your comments and questions!
