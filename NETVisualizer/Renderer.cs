@@ -13,40 +13,123 @@ using OpenTK.Graphics.OpenGL;
 
 namespace NETVisualizer
 {
+
+    /// <summary>
+    /// The main class that renders a network using OpenGL
+    /// </summary>
     public class Renderer : GameWindow
     {
+
+        /// <summary>
+        /// The main threat that implements the rendering loop
+        /// </summary>
    		private static Thread _mainThread;
 		
+        /// <summary>
+        /// The network to render
+        /// </summary>
 		private IRenderableNet _network;
+
+        /// <summary>
+        /// A colorizer class that can be used to color vertices and edges
+        /// </summary>
         private NetworkColorizer _colorizer;
+
+        /// <summary>
+        /// The layout algorithm
+        /// </summary>
 		private static LayoutProvider _layout;
-		private static Bitmap _screenshot = null;
-		private bool screenshot = false;
+
+        /// <summary>
+        /// A bitmap representation of the last grabbed frame
+        /// </summary>
+		private static Bitmap _grabbedFrame = null;
+
+        /// <summary>
+        /// Whether or not a frame is currently being grabbed
+        /// </summary>
+		private bool _grabbingFrame = false;
 		
-		private System.Drawing.Point _panStart;			
-		private bool _panning = false;		
-		private double _panX = 0d;
-		private double _panY = 0d;
-		private double _deltaX = 0d;
-		private double _deltaY = 0d;		
+        /// <summary>
+        /// The point in screen coordinates where the user started to pan the mouse
+        /// </summary>
+		private System.Drawing.Point _panStart;
+
+        /// <summary>
+        /// Whether or not the user is currently panning the mouse
+        /// </summary>
+        private bool _panning = false;
+
+        /// <summary>
+        /// The global panning offset. This is zero in the beginning and will be adjusted whenever a panning has been completed. 
+        /// </summary>
+		private double _panningTranslationX = 0d;
+		private double _panningTranslationY = 0d;
+
+        /// <summary>
+        /// The current delta resulting from an ongoing panning operation
+        /// </summary>
+		private double _panningDeltaX = 0d;
+        private double _panningdeltaY = 0d;
+
+        /// <summary>
+        /// The current zoom factor
+        /// </summary>
 		private double _zoom = 1d;
 		
+        /// <summary>
+        /// Whether or not to draw a red selection marker
+        /// </summary>
 		private bool _drawMarker = false;
 		
+        /// <summary>
+        /// A wait handle that will be signaled as soon as the device initialization has been completed
+        /// </summary>
 		private static AutoResetEvent _initialized = new AutoResetEvent(false);
-		private static AutoResetEvent _screenshotExists = new AutoResetEvent(false);		
+
+        /// <summary>
+        /// A wait handle that will be signaled as soon as a frame grabbing operation has been completed
+        /// </summary>
+		private static AutoResetEvent _frameGrabbingComplete = new AutoResetEvent(false);		
 	
+        /// <summary>
+        /// A singleton instance of the Renderer
+        /// </summary>
 		private static Renderer Instance;
 		
+        /// <summary>
+        /// A reference to the last selected vertex
+        /// </summary>
 		public static string SelectedVertex = null;
 		
+        /// <summary>
+        /// A function used to compute node sizes
+        /// </summary>
 		public static Func<string, float> ComputeNodeSize;
-		public static Func<Tuple<string,string>, float> ComputeEdgeWidth;
+
+        /// <summary>
+        /// A function used to compute the edge thickness
+        /// </summary>
+		public static Func<Tuple<string,string>, float> ComputeEdgeThickness;
 		
+        /// <summary>
+        /// The view matrix
+        /// </summary>
 		double[] matView = new double[16];
+
+        /// <summary>
+        /// The projection matric
+        /// </summary>
 		double[] matProj = new double[16];
+
+        /// <summary>
+        /// The view port matrix
+        /// </summary>
 		int[] viewport = new int[4];
 		
+        /// <summary>
+        /// Gets or sets the layout provider. The layout provider will be initialized based on the current instance whenver this property is set. 
+        /// </summary>
 		public static LayoutProvider Layout { 
 			get { return _layout; } 
 			set { value.Init(Instance.Width, Instance.Height, Instance._network);				
@@ -54,40 +137,58 @@ namespace NETVisualizer
 			}
 		}
 
-
+        /// <summary>
+        /// Basic constructor that initializes all events, default values and fields
+        /// </summary>
+        /// <param name="network"></param>
+        /// <param name="layout"></param>
+        /// <param name="colorizer"></param>
+        /// <param name="width"></param>
+        /// <param name="height"></param>
         internal Renderer(IRenderableNet network, LayoutProvider layout, NetworkColorizer colorizer, int width, int height)
-            : base(width, height, OpenTK.Graphics.GraphicsMode.Default, "NETGen Display")
+            : base(width, height, OpenTK.Graphics.GraphicsMode.Default, "NETVisualizer")
 		{
+            // Register key and mouse events
 			Keyboard.KeyDown += new EventHandler<KeyboardKeyEventArgs>(Keyboard_KeyDown);
 			Mouse.ButtonDown += new EventHandler<MouseButtonEventArgs>(Mouse_ButtonDown);
 			Mouse.ButtonUp += new EventHandler<MouseButtonEventArgs>(Mouse_ButtonUp);
 			Mouse.Move += new EventHandler<MouseMoveEventArgs>(Mouse_Move);		
 			Mouse.WheelChanged += new EventHandler<MouseWheelEventArgs>(Mouse_WheelChanged);	
 			
+            // Set default node size
 			ComputeNodeSize = new Func<string, float>(v => {
 				return 2f;
 			});
 			
-			ComputeEdgeWidth = new Func<Tuple<string,string>, float>( e => {
+            // Set default edge thickness
+			ComputeEdgeThickness = new Func<Tuple<string,string>, float>( e => {
 				return 0.05f;
 			});
-			_network = network;
-			
+
+            // Set network and initialize layout algorithm
+			_network = network;			
 			_layout = layout;
 			_layout.Init(Width, Height, network);
 			
+            // Initialize colorizer
 			if (colorizer == null)
 				_colorizer = new NetworkColorizer();
 			else
 				_colorizer = colorizer;
 		}
  
+        /// <summary>
+        /// Close the window if the user presses escape
+        /// </summary>
 		void Keyboard_KeyDown(object sender, KeyboardKeyEventArgs e)
 		{
 			if (e.Key == Key.Escape)
 				Exit();
 		}
 		
+        /// <summary>
+        /// React to mouse click: Start panning when the left button is pressed, draw selection marker when right button is pressed
+        /// </summary>
 		void Mouse_ButtonDown(object sender, MouseButtonEventArgs e)
 		{
 			if (e.Button == MouseButton.Left)
@@ -99,15 +200,20 @@ namespace NETVisualizer
 				_drawMarker = true;
 		}
 		
+        /// <summary>
+        /// React to mouse button release: End panning when left mouse button is released, select node when right mouse button is released
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
 		void Mouse_ButtonUp(object sender, MouseButtonEventArgs e)
 		{			
 			if (e.Button == MouseButton.Left)
 			{
 				_panning = false;
-				_panX += _deltaX;
-				_panY += _deltaY;
-				_deltaX = 0d;
-				_deltaY = 0d;
+				_panningTranslationX += _panningDeltaX;
+				_panningTranslationY += _panningdeltaY;
+				_panningDeltaX = 0d;
+				_panningdeltaY = 0d;
 			}
 			else if (e.Button == MouseButton.Right)
 			{
@@ -117,6 +223,11 @@ namespace NETVisualizer
 			}		
 		}
 		
+        /// <summary>
+        /// Unprojects the screen coordinates into the world coordinates (i.e. the coordinates of nodes)
+        /// </summary>
+        /// <param name="screencoord">The screen coordinates to unproject into world coordinates</param>
+        /// <returns>World coordinates</returns>
 		[MethodImpl(MethodImplOptions.Synchronized)]
 		OpenTK.Vector3 ScreenToWorld(OpenTK.Vector3 screencoord)
 		{
@@ -127,6 +238,11 @@ namespace NETVisualizer
 			return worldcoord;
 		}
 		
+        /// <summary>
+        /// Searches for a vertex based on a screen position
+        /// </summary>
+        /// <param name="position">The screen position</param>
+        /// <returns>The closest vertex or null if no vertex is within a certain range</returns>
 		string GetVertexFromPosition(System.Drawing.Point position)
 		{			
 			Vector3 screencoord = new Vector3(position.X, position.Y, 0);				
@@ -153,28 +269,36 @@ namespace NETVisualizer
 			return selected;
 		}
 		
+        /// <summary>
+        /// Changes the zoom factor
+        /// </summary>       
 		void Mouse_WheelChanged(object sender, MouseWheelEventArgs e)
 		{
 			_zoom += e.DeltaPrecise/4f;
 		}
 		
+        /// <summary>
+        /// Implements panning if the left mouse button is pressed
+        /// </summary>
 		void Mouse_Move(object sender, MouseEventArgs e)
 		{
 			if(_panning)
 			{
-				_deltaX = e.X - _panStart.X;
-				_deltaY = e.Y - _panStart.Y;				
+				_panningDeltaX = e.X - _panStart.X;
+				_panningdeltaY = e.Y - _panStart.Y;				
 			}
 		}
 		
+        /// <summary>
+        /// When the window is resized, matrices need to be adjusted
+        /// </summary>
 		protected override void OnResize(EventArgs e)
-		{
-			
+		{			
 			base.OnResize(e);
 			
 			GL.MatrixMode(MatrixMode.Projection);
 			GL.LoadIdentity();
-			GL.Hint(HintTarget.LineSmoothHint, HintMode.Nicest);
+            GL.Hint(HintTarget.LineSmoothHint, HintMode.Nicest);
 			GL.Ortho(0, Width, Height, 0, -1, 1);
 			GL.Viewport(0, 0, Width, Height);
 			
@@ -184,12 +308,17 @@ namespace NETVisualizer
 			GL.GetInteger(GetPName.Viewport, viewport);
 		}
  
+        /// <summary>
+        /// Initializes the matrices
+        /// </summary>
+        /// <param name="e"></param>
 		protected override void OnLoad(EventArgs e)
 		{
 			base.OnLoad(e);
 			
             GL.MatrixMode(MatrixMode.Projection);
 			GL.LoadIdentity();
+            GL.Hint(HintTarget.LineSmoothHint, HintMode.Nicest);
 			GL.Ortho(0, Width, Height, 0, -1, 1);
 			GL.Viewport(0, 0, Width, Height);
 			
@@ -201,13 +330,21 @@ namespace NETVisualizer
 		 	GL.ClearColor(_colorizer.DefaultBackgroundColor);
 		}
  
+        /// <summary>
+        /// Compute the frame rate and add them to the window title
+        /// </summary>
+        /// <param name="e"></param>
 		protected override void OnUpdateFrame(FrameEventArgs e)
 		{
 			base.OnUpdateFrame(e); 					
  
-			Title = "Rendering network at "+ FPSCounter.GetFps(e.Time).ToString() + " fps";
+			Title = "NETVisualizer ("+ FPSCounter.GetFps(e.Time).ToString() + " fps)";
 		}
 
+        /// <summary>
+        /// The actual rendering of the network
+        /// </summary>
+        /// <param name="e"></param>
  		[MethodImpl(MethodImplOptions.Synchronized)]
 		protected override void OnRenderFrame(FrameEventArgs e)
 		{			
@@ -221,7 +358,7 @@ namespace NETVisualizer
 			
 			// Apply panning and zooming state			
 			GL.Scale(_zoom, _zoom, _zoom);
-			GL.Translate(_panX+_deltaX, _panY+_deltaY, 0);
+			GL.Translate(_panningTranslationX+_panningDeltaX, _panningTranslationY+_panningdeltaY, 0);
 			
 			// Store matrices for unprojecting ... 
 			GL.GetDouble(GetPName.ModelviewMatrix, matView);
@@ -234,18 +371,18 @@ namespace NETVisualizer
 			
 			// Draw the edges
 			foreach(var edge in _network.GetEdgeArray())
-				DrawEdge(edge.Item1, edge.Item2, _colorizer[edge], ComputeEdgeWidth(edge));
+				DrawEdge(edge.Item1, edge.Item2, _colorizer[edge], ComputeEdgeThickness(edge));
 			
 			if(SelectedVertex != null)
 				foreach(string w in this._network.GetSuccessorArray(SelectedVertex))
-					DrawEdge(SelectedVertex, w, Color.Red, ComputeEdgeWidth(new Tuple<string,string>(SelectedVertex, w)), true);
+					DrawEdge(SelectedVertex, w, Color.Red, ComputeEdgeThickness(new Tuple<string,string>(SelectedVertex, w)), true);
 			
 			// Draw the vertices
 			foreach(string v in _network.GetVertexArray())
-				DrawVertex(v, _colorizer[v], 10, ComputeNodeSize(v));
+                DrawVertex(v, _colorizer[v], (int)(10 * _zoom), ComputeNodeSize(v));
 			
 			if(SelectedVertex != null)
-				DrawVertex(SelectedVertex, Color.Red, 10, ComputeNodeSize(SelectedVertex), true);
+				DrawVertex(SelectedVertex, Color.Red, (int)(10*_zoom), ComputeNodeSize(SelectedVertex), true);
 			
 			if(_drawMarker)
 				DrawMarker(Color.Red, 10, 2);
@@ -253,26 +390,20 @@ namespace NETVisualizer
 			// Swap screen and backbuffer
 			SwapBuffers();
 			
-			if(screenshot)
+			if(_grabbingFrame)
 				GrabImage();
 		}
 		
 		/// <summary>
 		/// Draws an edge as a simple line between two node positions
 		/// </summary>
-		/// <param name='e'>
-		/// The edge to paint
-		/// </param>
-		/// <param name='c'>
-		/// The color to use for the edge
-		/// </param>
-		void DrawEdge(string v, string w, Color c, float width, bool drawselected = false)
+		void DrawEdge(string v, string w, Color c, float thickness, bool drawselected = false)
 		{
 			if ( !drawselected && SelectedVertex!=null && (v == SelectedVertex || w == SelectedVertex))
 				return;
 			
 			GL.Color3(c);
-			GL.LineWidth(width);
+			GL.LineWidth(thickness);
 			GL.Begin(BeginMode.Lines);
 			
 			GL.Vertex2(Layout.GetPositionOfNode(v).X, Layout.GetPositionOfNode(v).Y);
@@ -281,6 +412,9 @@ namespace NETVisualizer
 			GL.End();
 		}
 		
+        /// <summary>
+        /// Draws a red marker used for selecting vertices
+        /// </summary>
 		void DrawMarker(Color c, int segments, int radius)
 		{
 			OpenTK.Vector3 pos = ScreenToWorld(new OpenTK.Vector3(Mouse.X, Mouse.Y, 0));
@@ -298,15 +432,9 @@ namespace NETVisualizer
 		/// <summary>
 		/// Draws a vertex as a simple circle made up from a configurable number of triangle segments
 		/// </summary>
-		/// <param name='v'>
-		/// The vertex to draw
-		/// </param>
-		/// <param name='c'>
-		/// The Color to use for the vertex
-		/// </param>
-		/// <param name='segments'>
-		/// The number of triangle segments to use. A higher number will look more prety but will take more time to render
-		/// </param>
+		/// <param name='v'>The vertex to draw</param>
+		/// <param name='c'>The color to use for the vertex</param>
+		/// <param name='segments'>The number of triangle segments to use. A higher number will look more pretty but will take more time to render</param>
 		void DrawVertex(string v, Color c, int segments, double radius, bool drawselected = false)
         {
 			if(!drawselected && SelectedVertex !=null && v == SelectedVertex)
@@ -326,12 +454,11 @@ namespace NETVisualizer
 		/// <summary>
 		/// Creates a new instance of a Networkvisualizer which renders the specified network in real-time
 		/// </summary>
-		/// <param name='n'>
-		/// N.
-		/// </param>
-		/// <param name='layout'>
-		/// Layout.
-		/// </param>
+        /// <param name="network">The network to render</param>
+        /// <param name="layout">The layout algorithm to use</param>
+        /// <param name="colorizer">The colorizer to apply. Default colors will be used if this is set to null (which is the default)</param>
+        /// <param name="width">The width of the rendering window. 800 pixels by default</param>
+        /// <param name="height">The height of the rendering window. 600 pixels by default</param>
 		public static void Start(IRenderableNet network, LayoutProvider layout, NetworkColorizer colorizer = null, int width=800, int height=600)
 		{			
 			// The actual rendering needs to be done in a separate thread placed in the single thread appartment state
@@ -340,40 +467,44 @@ namespace NETVisualizer
 					_initialized.Set();
 					Instance.Run(80f);
             })));
-						
+
+            // Set single thread appartment
             _mainThread.SetApartmentState(ApartmentState.STA);
-            _mainThread.Name = "STA Thread for NETGen Visualizer";
+            _mainThread.Name = "STA Thread for NETVisualizer";
 			
-			// Fire up the thread
+			// Fire up the thread and wait until initialization has been completed
             _mainThread.Start();
 			_initialized.WaitOne();
 		}
 		
+        /// <summary>
+        /// Grabs the current frame and stores it as a bitmap
+        /// </summary>
 		[MethodImpl(MethodImplOptions.Synchronized)]
 	    private static void GrabImage()
         {
             if (OpenTK.Graphics.GraphicsContext.CurrentContext == null)
                 throw new OpenTK.Graphics.GraphicsContextMissingException();
  
-            if(_screenshot==null)
-				_screenshot = new Bitmap(Instance.ClientSize.Width, Instance.ClientSize.Height);
+            if(_grabbedFrame==null)
+				_grabbedFrame = new Bitmap(Instance.ClientSize.Width, Instance.ClientSize.Height);
 			
 			try {
-				lock(_screenshot)
+				lock(_grabbedFrame)
 				{
 					 System.Drawing.Imaging.BitmapData data =
-		             _screenshot.LockBits(Instance.ClientRectangle, System.Drawing.Imaging.ImageLockMode.WriteOnly, 
+		             _grabbedFrame.LockBits(Instance.ClientRectangle, System.Drawing.Imaging.ImageLockMode.WriteOnly, 
 							System.Drawing.Imaging.PixelFormat.Format32bppArgb);
 					
 		            GL.ReadPixels(0, 0, Instance.ClientSize.Width, Instance.ClientSize.Height,PixelFormat.Bgra,
 						PixelType.UnsignedByte, data.Scan0);
 					
-		            _screenshot.UnlockBits(data);
+		            _grabbedFrame.UnlockBits(data);
 				}
-				_screenshotExists.Set();
+				_frameGrabbingComplete.Set();
 			}
 			catch {
-				// Logger.AddMessage(LogEntryType.Warning, "Error while copying screen buffer to bitmap.");
+				Console.WriteLine("Error while copying screen buffer to bitmap.");
 			}
 
         }
@@ -386,29 +517,24 @@ namespace NETVisualizer
 		/// </param>
 		public static void SaveCurrentImage(string filename)
 		{
-			Instance.screenshot = true;
+			Instance._grabbingFrame = true;
 			
-			// Wait until there is a screenshot
-			_screenshotExists.WaitOne();
+			// Wait until the frame grabbing is complete
+			_frameGrabbingComplete.WaitOne();
 			
-			if(_screenshot != null && filename != null)
+			if(_grabbedFrame != null && filename != null)
 			{
-				lock(_screenshot)
-					_screenshot.Save(filename);
-				// Logger.AddMessage(LogEntryType.Info, "Network image has been written to  file");
+				lock(_grabbedFrame)
+					_grabbedFrame.Save(filename);				
 			}
 			else
 			{
-				// Logger.AddMessage(LogEntryType.Warning, "Could not save network image");
+				Console.WriteLine("Could not save network image");
 			}
 			
-			Instance.screenshot = false;
-			_screenshotExists.Reset();
-			
+			Instance._grabbingFrame = false;
+			_frameGrabbingComplete.Reset();	
 		}
-			
-
 	}
-
 }
 

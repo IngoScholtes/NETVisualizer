@@ -8,8 +8,8 @@
     <ProjectGuid>{E2987071-9308-40DF-AAE9-06AC486DA060}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>Netgraph.Layouts.FruchtermanReingold</RootNamespace>
-    <AssemblyName>Netgraph.Layouts.FruchtermanReingold</AssemblyName>
+    <RootNamespace>NetVisualizer.Layouts.FruchtermanReingold</RootNamespace>
+    <AssemblyName>NETVisualizer.Layouts.FruchtermanReingold</AssemblyName>
     <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
   </PropertyGroup>

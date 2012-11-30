@@ -5,11 +5,11 @@ using System.Runtime.InteropServices;
 // General Information about an assembly is controlled through the following 
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
-[assembly: AssemblyTitle("NETgraph.Visualization")]
-[assembly: AssemblyDescription("")]
+[assembly: AssemblyTitle("NETVisualizer")]
+[assembly: AssemblyDescription("Efficient rendering of networks in OpenGL and .NET")]
 [assembly: AssemblyConfiguration("")]
-[assembly: AssemblyCompany("")]
-[assembly: AssemblyProduct("NETgraph.Visualization")]
+[assembly: AssemblyCompany("Chair of Systems Design, ETH Zurich")]
+[assembly: AssemblyProduct("NETVisualizer")]
 [assembly: AssemblyCopyright("Copyright ©  2012")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]

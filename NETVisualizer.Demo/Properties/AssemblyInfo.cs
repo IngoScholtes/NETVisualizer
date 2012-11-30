@@ -6,9 +6,9 @@ using System.Runtime.InteropServices;
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
 [assembly: AssemblyTitle("NETVisualizer.Demo")]
-[assembly: AssemblyDescription("")]
+[assembly: AssemblyDescription("A simple demonstration of the visualization framework")]
 [assembly: AssemblyConfiguration("")]
-[assembly: AssemblyCompany("")]
+[assembly: AssemblyCompany("Chair of Systems Design, ETH Zurich")]
 [assembly: AssemblyProduct("NETVisualizer.Demo")]
 [assembly: AssemblyCopyright("Copyright ©  2012")]
 [assembly: AssemblyTrademark("")]

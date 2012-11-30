@@ -8,8 +8,8 @@
     <ProjectGuid>{309DE3D4-C06F-47EE-8A03-4F29F46E36E1}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>NETgraph.Visualization</RootNamespace>
-    <AssemblyName>NETgraph.Visualization</AssemblyName>
+    <RootNamespace>NETVisualizer</RootNamespace>
+    <AssemblyName>NETVisualizer</AssemblyName>
     <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
   </PropertyGroup>
@@ -53,7 +53,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="LayoutProvider.cs" />
-    <Compile Include="INetwork.cs" />
+    <Compile Include="IRenderableNet.cs" />
     <Compile Include="NetworkColorizer.cs" />
     <Compile Include="Renderer.cs" />
     <Compile Include="FPSCounter.cs" />

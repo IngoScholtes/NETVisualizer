@@ -5,11 +5,11 @@ using System.Runtime.InteropServices;
 // General Information about an assembly is controlled through the following 
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
-[assembly: AssemblyTitle("Netgraph.Layouts.FruchtermanReingold")]
-[assembly: AssemblyDescription("")]
+[assembly: AssemblyTitle("NETVisualizer.Layouts.FruchtermanReingold")]
+[assembly: AssemblyDescription("Parallel Fruchterman-Reingold graph layout")]
 [assembly: AssemblyConfiguration("")]
-[assembly: AssemblyCompany("")]
-[assembly: AssemblyProduct("Netgraph.Layouts.FruchtermanReingold")]
+[assembly: AssemblyCompany("Chair of Systems Design, ETH Zurich")]
+[assembly: AssemblyProduct("NETVisualizer.Layouts.FruchtermanReingold")]
 [assembly: AssemblyCopyright("Copyright ©  2012")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
