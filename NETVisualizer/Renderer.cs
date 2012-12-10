@@ -245,8 +245,7 @@ namespace NETVisualizer
         /// <returns>The closest vertex or null if no vertex is within a certain range</returns>
 		string GetVertexFromPosition(System.Drawing.Point position)
 		{			
-			Vector3 screencoord = new Vector3(position.X, position.Y, 0);				
-			Console.WriteLine("Clicked at " + position.X + "," + position.Y);
+			Vector3 screencoord = new Vector3(position.X, position.Y, 0);							
 			Vector3 worldcoord = ScreenToWorld(screencoord);
 			
 			string selected = null;
@@ -265,7 +264,9 @@ namespace NETVisualizer
 				}
 			}
 			if (selected!=null)
-				Console.WriteLine(selected + " at distance " + dist);
+				Console.WriteLine("Selected node: "  + selected);
+            else
+                Console.WriteLine("No node. Clicked at " + position.X + "," + position.Y);
 			return selected;
 		}
 		
@@ -441,7 +442,9 @@ namespace NETVisualizer
 				return;
 			
         	GL.Color3(c);
-            GL.Begin(BeginMode.TriangleFan);
+            GL.Begin(BeginMode.Polygon);
+
+            segments = Math.Max(3, segments);
 
             for (int i = 0; i < 360; i+=360/segments)
             {
