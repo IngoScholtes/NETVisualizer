@@ -40,7 +40,7 @@ namespace NETVisualizer.Demo
             // Trigger the layout again. Only changed nodes will be relayouted ... 
             Renderer.Layout.DoLayoutAsync();
 
-            Console.WriteLine("Waiting for rendering window to be closed ...");
+            Console.WriteLine("Waiting for rendering window to be closed ...");           
         }
     }
 }

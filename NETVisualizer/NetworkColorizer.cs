@@ -4,6 +4,7 @@ using System.Collections.Concurrent;
 using System.Linq;
 using System.Text;
 using System.Drawing;
+using System.Runtime.CompilerServices;
 
 namespace NETVisualizer
 {
@@ -37,8 +38,9 @@ namespace NETVisualizer
         /// </param>
         public void RecomputeColors(Func<string, Color> transform)
         {
-            foreach (string v in _customVertexColors.Keys.ToArray())
-                _customVertexColors[v] = transform(v);
+            lock(_customVertexColors)
+                foreach (string v in _customVertexColors.Keys.ToArray())
+                    _customVertexColors[v] = transform(v);
         }
 
         /// <summary>
@@ -49,8 +51,9 @@ namespace NETVisualizer
         /// </param>
         public void RecomputeColors(Func<Tuple<string, string>, Color> transform)
         {
-            foreach (var e in _customEdgeColors.Keys.ToArray())
-                _customEdgeColors[e] = transform(e);
+            lock(_customEdgeColors)
+                foreach (var e in _customEdgeColors.Keys.ToArray())
+                    _customEdgeColors[e] = transform(e);
         }
 
         /// <summary>
@@ -58,18 +61,24 @@ namespace NETVisualizer
         /// </summary>
         public void ClearAllColors()
         {
-            _customVertexColors.Clear();
-            _customEdgeColors.Clear();
+            lock(_customEdgeColors)
+                lock (_customVertexColors)
+                {
+                    _customVertexColors.Clear();
+                    _customEdgeColors.Clear();
+                }
         }
 
         public void ClearEdgeColors()
         {
-            _customEdgeColors.Clear();
+            lock(_customEdgeColors)
+                _customEdgeColors.Clear();
         }
 
         public void ClearVertexColors()
         {
-            _customVertexColors.Clear();
+            lock(_customVertexColors)
+                _customVertexColors.Clear();
         }
 
         /// <summary>
@@ -82,14 +91,18 @@ namespace NETVisualizer
         {
             get
             {
-                if (_customVertexColors.ContainsKey(v))
-                    return _customVertexColors[v];
-                else
-                    return DefaultVertexColor;
+                lock (_customVertexColors)
+                {
+                    if (_customVertexColors.ContainsKey(v))
+                        return _customVertexColors[v];
+                    else
+                        return DefaultVertexColor;
+                }
             }
             set
             {
-                _customVertexColors[v] = value;
+                lock (_customVertexColors)
+                    _customVertexColors[v] = value;
             }
         }
 
@@ -103,14 +116,18 @@ namespace NETVisualizer
         {
             get
             {
-                if (_customEdgeColors.ContainsKey(e))
-                    return _customEdgeColors[e];
-                else
-                    return DefaultEdgeColor;
+                lock (_customEdgeColors)
+                {
+                    if (_customEdgeColors.ContainsKey(e))
+                        return _customEdgeColors[e];
+                    else
+                        return DefaultEdgeColor;
+                }
             }
             set
             {
-                _customEdgeColors[e] = value;
+                lock(_customEdgeColors)
+                    _customEdgeColors[e] = value;
             }
         }
     }
