@@ -7,6 +7,7 @@ Main features
 ---
 
 - Efficient rendering of large networks based on OpenGL and OpenTK
+- Visualization modes using straight and curved edges
 - Simple and clean network interface that does not impose constraints on how you implement networks in your code
 - Simple to use in your own code, a single line of code is sufficient to fire up an OpenGL visualization and start exploring a network
 - Easy-to-grasp interface for custom graph layouting algorithms
