@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Text;
 
 namespace NETVisualizer.Demo
@@ -24,6 +25,7 @@ namespace NETVisualizer.Demo
         /// Adds a vertex to the network
         /// </summary>
         /// <param name="v"></param>
+        [MethodImpl(MethodImplOptions.Synchronized)]
         public void AddVertex(string v)
         {
             _vertices.Add(v);
@@ -34,6 +36,7 @@ namespace NETVisualizer.Demo
         /// </summary>
         /// <param name="v">source node</param>
         /// <param name="w">target node</param>
+        [MethodImpl(MethodImplOptions.Synchronized)]
         public void AddEdge(string v, string w)
         {
             if (!_vertices.Contains(v))
@@ -73,6 +76,24 @@ namespace NETVisualizer.Demo
         }
 
         /// <summary>
+        /// Reads a directed network from an edge list
+        /// </summary>
+        /// <param name="file">The filename to read the network from</param>
+        /// <param name="sep">The separator charactor used in the file</param>
+        /// <returns>A network</returns>
+        public static SimpleNetwork ReadFromEdgeList(string file, char sep = ' ')
+        {
+            string[] edges = System.IO.File.ReadAllLines(file);
+            SimpleNetwork net = new SimpleNetwork();
+            foreach (string edge in edges)
+            { 
+                string[] nodes = edge.Split(sep);
+                net.AddEdge(nodes[0], nodes[1]);
+            }
+            return net;
+        }
+
+        /// <summary>
         /// Returns an array of vertices
         /// </summary>
         /// <returns></returns>
@@ -95,6 +116,7 @@ namespace NETVisualizer.Demo
         /// </summary>
         /// <param name="v"></param>
         /// <returns></returns>
+        [MethodImpl(MethodImplOptions.Synchronized)]
         public string[] GetSuccessorArray(string v)
         {
             return (from w in _edges where w.Item1 == v select w.Item2).Concat(from w in _edges where w.Item2 == v select w.Item1).ToArray();            
@@ -105,6 +127,7 @@ namespace NETVisualizer.Demo
         /// </summary>
         /// <param name="w"></param>
         /// <returns></returns>
+        [MethodImpl(MethodImplOptions.Synchronized)]
         public string[] GetPredecessorArray(string w)
         {
             return GetSuccessorArray(w);

@@ -137,6 +137,26 @@ namespace NETVisualizer
 			}
 		}
 
+        public static bool CurvedEdges
+        {
+            get;
+            set;
+        }
+
+        public static float EdgeCurvatureGamma
+        {
+            get;
+            set;
+        }
+
+        public static float EdgeCurvatureSegments
+        {
+            get;
+            set;
+        }
+
+        private static Dictionary<string, bool> rendered = new Dictionary<string, bool>();
+
         /// <summary>
         /// Basic constructor that initializes all events, default values and fields
         /// </summary>
@@ -164,6 +184,9 @@ namespace NETVisualizer
 			ComputeEdgeThickness = new Func<Tuple<string,string>, float>( e => {
 				return 0.05f;
 			});
+
+            EdgeCurvatureGamma = (float)Math.PI / 3f;
+            EdgeCurvatureSegments = 15;
 
             // Set network and initialize layout algorithm
 			_network = network;			
@@ -368,11 +391,19 @@ namespace NETVisualizer
 			
 			// Clear the buffer
 			GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
-			GL.ClearColor(_colorizer.DefaultBackgroundColor);		
+            GL.ClearColor(_colorizer.DefaultBackgroundColor);
+
+            foreach (string v in _network.GetVertexArray())
+                rendered[v] = false;
 			
 			// Draw the edges
-			foreach(var edge in _network.GetEdgeArray())
-				DrawEdge(edge.Item1, edge.Item2, _colorizer[edge], ComputeEdgeThickness(edge));
+            foreach (var edge in _network.GetEdgeArray())
+            {                
+                if(string.Compare(edge.Item1, edge.Item2)>=0)   
+                    DrawEdge(edge.Item1, edge.Item2, _colorizer[edge], ComputeEdgeThickness(edge));
+                else
+                    DrawEdge(edge.Item2, edge.Item1, _colorizer[edge], ComputeEdgeThickness(edge));
+            }
 			
 			if(SelectedVertex != null)
 				foreach(string w in this._network.GetSuccessorArray(SelectedVertex))
@@ -394,23 +425,95 @@ namespace NETVisualizer
 			if(_grabbingFrame)
 				GrabImage();
 		}
+
+        /// <summary>
+        /// Quickly computes whether the sequence of lines (p,q) (q,r) represents a right-turn (positive result) or a left-turn (negative result)
+        /// </summary>
+        /// <param name="p">The first point in the sequence</param>
+        /// <param name="q">The second point in the sequence</param>
+        /// <param name="r">The The third point in the sequence</param>
+        /// <returns>A value whose sign tells whether r is on the left-hand side of the line pq (negative) or on the right-hand side (positive)</returns>
+        int orientation(Vector2 p, Vector2 q, Vector2 r)
+        {
+            return Math.Sign((q.X - p.X) * (r.Y - p.Y) - (q.Y - p.Y) * (r.X - p.X));
+        }
 		
 		/// <summary>
-		/// Draws an edge as a simple line between two node positions
+		/// Draws an edge as a straight or a curved line
 		/// </summary>
 		void DrawEdge(string v, string w, Color c, float thickness, bool drawselected = false)
 		{
 			if ( !drawselected && SelectedVertex!=null && (v == SelectedVertex || w == SelectedVertex))
 				return;
-			
-			GL.Color3(c);
-			GL.LineWidth(thickness);
-			GL.Begin(BeginMode.Lines);
-			
-			GL.Vertex2(Layout.GetPositionOfNode(v).X, Layout.GetPositionOfNode(v).Y);
-			GL.Vertex2(Layout.GetPositionOfNode(w).X, Layout.GetPositionOfNode(w).Y);
-			
-			GL.End();
+
+            // Draw curved edge
+            if (CurvedEdges)
+            {
+                // The two end points of the arc
+                Vector2 pos_v = new Vector2(Layout.GetPositionOfNode(v).X, Layout.GetPositionOfNode(v).Y);
+                Vector2 pos_w = new Vector2(Layout.GetPositionOfNode(w).X, Layout.GetPositionOfNode(w).Y);
+
+                if (pos_v == pos_w)
+                    return;
+
+                // The vector vw representing one point of an equilateral triangle (v,w,x) with x being the center of the circle 
+                Vector2 vw = Vector2.Subtract(pos_w, pos_v);
+
+                // In an equilateral triangle, the two angles adjacent to vw are alpha
+                float alpha = ((float)Math.PI - EdgeCurvatureGamma) / 2f;
+
+                // Compute the radius based on the sine rule ... 
+                float radius = Math.Abs((float)(vw.Length * Math.Sin(alpha) / Math.Sin(EdgeCurvatureGamma)));
+
+                // Compute center point
+                Vector2 center = vw;
+                center.Normalize();
+                float rotated_x = (float) (center.X * Math.Cos(alpha) - center.Y * Math.Sin(alpha));
+                float rotated_y = (float) (center.X * Math.Sin(alpha) + center.Y * Math.Cos(alpha));
+                center.X = rotated_x;
+                center.Y = rotated_y;
+                Vector2 pos_center = Vector2.Add(pos_v, Vector2.Multiply(center, radius));                                                            
+
+                // The vector xv that will be rotatd in every step ... 
+                Vector2 xv = Vector2.Subtract(pos_v, pos_center);
+
+                // The point on the circle to use for the next line segment
+                Vector2 circle_point = xv;
+
+                // Initiate the drawing ... 
+                GL.Color3(c);
+                GL.LineWidth(thickness);
+                GL.Begin(BeginMode.LineStrip);
+
+                // Gradually rotate the vector circle_point to get the points on the circle to connect to a curved edge
+                if (orientation(pos_center, pos_v, pos_w) > 0)
+                    for (int i = 0; i <= EdgeCurvatureSegments; i++)
+                    {
+                        GL.Vertex2(Vector2.Add(pos_center, circle_point));
+                        float new_x = (float)(circle_point.X * Math.Cos(EdgeCurvatureGamma / EdgeCurvatureSegments) - circle_point.Y * Math.Sin(EdgeCurvatureGamma / EdgeCurvatureSegments));
+                        float new_y = (float)(circle_point.X * Math.Sin(EdgeCurvatureGamma / EdgeCurvatureSegments) + circle_point.Y * Math.Cos(EdgeCurvatureGamma / EdgeCurvatureSegments));
+                        circle_point = new Vector2(new_x, new_y);
+                    }
+                else
+                    for (int i = 0; i <= EdgeCurvatureSegments; i++)
+                    {
+                        GL.Vertex2(Vector2.Add(pos_center, circle_point));
+                        float new_x = (float)(circle_point.X * Math.Cos(-EdgeCurvatureGamma / EdgeCurvatureSegments) - circle_point.Y * Math.Sin(-EdgeCurvatureGamma / EdgeCurvatureSegments));
+                        float new_y = (float)(circle_point.X * Math.Sin(-EdgeCurvatureGamma / EdgeCurvatureSegments) + circle_point.Y * Math.Cos(-EdgeCurvatureGamma / EdgeCurvatureSegments));
+                        circle_point = new Vector2(new_x, new_y);
+                    }
+                GL.End();
+            }
+            // Draw straight edge as a simple line between the vertices
+            else
+            {
+                GL.Color3(c);
+                GL.LineWidth(thickness);        
+                GL.Begin(BeginMode.Lines);
+                GL.Vertex2(Layout.GetPositionOfNode(v).X, Layout.GetPositionOfNode(v).Y);
+                GL.Vertex2(Layout.GetPositionOfNode(w).X, Layout.GetPositionOfNode(w).Y);
+                GL.End();
+            }						
 		}
 		
         /// <summary>
@@ -424,7 +527,7 @@ namespace NETVisualizer
 
             for (int i = 0; i < 360; i+=360/segments)
             {
-                double degInRad = i * 3.1416/180;
+                double degInRad = i * (float) Math.PI/180f;
                 GL.Vertex2(pos.X + Math.Cos(degInRad) * radius, pos.Y+Math.Sin(degInRad) * radius);
             }
 			GL.End();
