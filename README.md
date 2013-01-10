@@ -7,7 +7,8 @@ Main features
 ---
 
 - Efficient rendering of large networks based on OpenGL and OpenTK
-- Visualization modes using straight and curved edges
+- Support for the visualization of temporal networks
+- Visualization modes using straight and customizable curved edges
 - Simple and clean network interface that does not impose constraints on how you implement networks in your code
 - Simple to use in your own code, a single line of code is sufficient to fire up an OpenGL visualization and start exploring a network
 - Easy-to-grasp interface for custom graph layouting algorithms
@@ -18,7 +19,7 @@ Main features
 - Node and edge sizes and colors can be conveniently and dynamically computed based on elegant lambda expression interface
 - No external dependencies except OpenTK (libraries included) 
 - Fully documented: Each method and field is explained and in-method comments help you to understand and extend the existing code
-- Integrated, maximally demo that can be used as boilerplate code for your own project
+- Integrated, maximally simple demo that can be used as boilerplate code for your own project
 - Platform-independent, built on OpenTK, runs on Windows, MacOS X and Linux
 
 A screenshot of the OpenTK visualization window is shown below:
