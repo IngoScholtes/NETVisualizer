@@ -1,6 +1,6 @@
 ﻿
-Microsoft Visual Studio Solution File, Format Version 11.00
-# Visual Studio 2010
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 2012
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NETVisualizer", "NETVisualizer\NETVisualizer.csproj", "{309DE3D4-C06F-47EE-8A03-4F29F46E36E1}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "NETVisualizer.Layouts", "NETVisualizer.Layouts", "{55CE845E-D252-463B-A733-7AD070E6C1AA}"
@@ -13,6 +13,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 	ProjectSection(SolutionItems) = preProject
 		README.md = README.md
 	EndProjectSection
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NETVisualizer.TemporalNets", "NETVisualizer.TemporalNets\NETVisualizer.TemporalNets.csproj", "{07563B9E-A6CB-4F50-A074-AC13EA7EE7B4}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -54,6 +56,16 @@ Global
 		{06A2C156-8794-46A7-BFC4-D3C6D25EF016}.Release|Mixed Platforms.Build.0 = Release|x86
 		{06A2C156-8794-46A7-BFC4-D3C6D25EF016}.Release|x86.ActiveCfg = Release|x86
 		{06A2C156-8794-46A7-BFC4-D3C6D25EF016}.Release|x86.Build.0 = Release|x86
+		{07563B9E-A6CB-4F50-A074-AC13EA7EE7B4}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{07563B9E-A6CB-4F50-A074-AC13EA7EE7B4}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{07563B9E-A6CB-4F50-A074-AC13EA7EE7B4}.Debug|Mixed Platforms.ActiveCfg = Debug|Any CPU
+		{07563B9E-A6CB-4F50-A074-AC13EA7EE7B4}.Debug|Mixed Platforms.Build.0 = Debug|Any CPU
+		{07563B9E-A6CB-4F50-A074-AC13EA7EE7B4}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{07563B9E-A6CB-4F50-A074-AC13EA7EE7B4}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{07563B9E-A6CB-4F50-A074-AC13EA7EE7B4}.Release|Any CPU.Build.0 = Release|Any CPU
+		{07563B9E-A6CB-4F50-A074-AC13EA7EE7B4}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
+		{07563B9E-A6CB-4F50-A074-AC13EA7EE7B4}.Release|Mixed Platforms.Build.0 = Release|Any CPU
+		{07563B9E-A6CB-4F50-A074-AC13EA7EE7B4}.Release|x86.ActiveCfg = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
