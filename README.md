@@ -7,8 +7,9 @@ Main features
 ---
 
 - Efficient rendering of large networks based on OpenGL and OpenTK
-- Support for the visualization of temporal networks
+- Support for the visualization of temporal networks (both as aggregated and dynamic representation)
 - Visualization modes using straight and customizable curved edges
+- Integrated PDF export
 - Simple and clean network interface that does not impose constraints on how you implement networks in your code
 - Simple to use in your own code, a single line of code is sufficient to fire up an OpenGL visualization and start exploring a network
 - Easy-to-grasp interface for custom graph layouting algorithms

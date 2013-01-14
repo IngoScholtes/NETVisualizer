@@ -35,6 +35,8 @@
             this.playButton = new System.Windows.Forms.Button();
             this.simulationDelay = new System.Windows.Forms.NumericUpDown();
             this.label3 = new System.Windows.Forms.Label();
+            this.saveFileDialog1 = new System.Windows.Forms.SaveFileDialog();
+            this.exportPDFBtn = new System.Windows.Forms.Button();
             ((System.ComponentModel.ISupportInitialize)(this.curvatureBar)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.timeBar)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.simulationDelay)).BeginInit();
@@ -65,7 +67,7 @@
             // 
             this.timeBar.Cursor = System.Windows.Forms.Cursors.Default;
             this.timeBar.Enabled = false;
-            this.timeBar.Location = new System.Drawing.Point(51, 133);
+            this.timeBar.Location = new System.Drawing.Point(51, 188);
             this.timeBar.Name = "timeBar";
             this.timeBar.Size = new System.Drawing.Size(326, 45);
             this.timeBar.TabIndex = 4;
@@ -77,7 +79,7 @@
             this.checkBox1.AutoSize = true;
             this.checkBox1.Checked = true;
             this.checkBox1.CheckState = System.Windows.Forms.CheckState.Checked;
-            this.checkBox1.Location = new System.Drawing.Point(15, 98);
+            this.checkBox1.Location = new System.Drawing.Point(7, 156);
             this.checkBox1.Name = "checkBox1";
             this.checkBox1.Size = new System.Drawing.Size(168, 17);
             this.checkBox1.TabIndex = 5;
@@ -90,7 +92,7 @@
             this.playButton.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch;
             this.playButton.Enabled = false;
             this.playButton.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this.playButton.Location = new System.Drawing.Point(7, 133);
+            this.playButton.Location = new System.Drawing.Point(7, 188);
             this.playButton.Name = "playButton";
             this.playButton.Size = new System.Drawing.Size(38, 36);
             this.playButton.TabIndex = 6;
@@ -107,7 +109,7 @@
             0,
             0,
             0});
-            this.simulationDelay.Location = new System.Drawing.Point(7, 184);
+            this.simulationDelay.Location = new System.Drawing.Point(7, 230);
             this.simulationDelay.Maximum = new decimal(new int[] {
             5000,
             0,
@@ -130,17 +132,28 @@
             // label3
             // 
             this.label3.AutoSize = true;
-            this.label3.Location = new System.Drawing.Point(68, 186);
+            this.label3.Location = new System.Drawing.Point(68, 230);
             this.label3.Name = "label3";
             this.label3.Size = new System.Drawing.Size(83, 13);
             this.label3.TabIndex = 8;
             this.label3.Text = "ms per time step";
+            // 
+            // exportPDFBtn
+            // 
+            this.exportPDFBtn.Location = new System.Drawing.Point(12, 88);
+            this.exportPDFBtn.Name = "exportPDFBtn";
+            this.exportPDFBtn.Size = new System.Drawing.Size(75, 23);
+            this.exportPDFBtn.TabIndex = 9;
+            this.exportPDFBtn.Text = "Export PDF";
+            this.exportPDFBtn.UseVisualStyleBackColor = true;
+            this.exportPDFBtn.Click += new System.EventHandler(this.exportPDFBtn_Click);
             // 
             // VisualizationController
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(379, 262);
+            this.Controls.Add(this.exportPDFBtn);
             this.Controls.Add(this.label3);
             this.Controls.Add(this.simulationDelay);
             this.Controls.Add(this.playButton);
@@ -168,5 +181,7 @@
         private System.Windows.Forms.Button playButton;
         private System.Windows.Forms.NumericUpDown simulationDelay;
         private System.Windows.Forms.Label label3;
+        private System.Windows.Forms.SaveFileDialog saveFileDialog1;
+        private System.Windows.Forms.Button exportPDFBtn;
     }
 }

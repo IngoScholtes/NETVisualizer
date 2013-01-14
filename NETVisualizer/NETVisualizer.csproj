@@ -39,6 +39,9 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\lib\OpenTK.Compatibility.dll</HintPath>
     </Reference>
+    <Reference Include="PdfSharp">
+      <HintPath>..\lib\PdfSharp.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Drawing" />
@@ -55,6 +58,7 @@
     <Compile Include="LayoutProvider.cs" />
     <Compile Include="IRenderableNet.cs" />
     <Compile Include="NetworkColorizer.cs" />
+    <Compile Include="PDFExporter.cs" />
     <Compile Include="Renderer.cs" />
     <Compile Include="FPSCounter.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

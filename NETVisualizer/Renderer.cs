@@ -433,7 +433,7 @@ namespace NETVisualizer
         /// <param name="q">The second point in the sequence</param>
         /// <param name="r">The The third point in the sequence</param>
         /// <returns>A value whose sign tells whether r is on the left-hand side of the line pq (negative) or on the right-hand side (positive)</returns>
-        int orientation(Vector2 p, Vector2 q, Vector2 r)
+        internal static int orientation(Vector2 p, Vector2 q, Vector2 r)
         {
             return Math.Sign((q.X - p.X) * (r.Y - p.Y) - (q.Y - p.Y) * (r.X - p.X));
         }

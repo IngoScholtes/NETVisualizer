@@ -76,5 +76,15 @@ namespace NETVisualizer.TemporalNets
         {
             temp_net.MoveTime(timeBar.Value);
         }
+
+        private void exportPDFBtn_Click(object sender, EventArgs e)
+        {
+            saveFileDialog1 = new SaveFileDialog();
+            saveFileDialog1.Filter = "PDF|*.pdf";
+            if(saveFileDialog1.ShowDialog()==DialogResult.OK)
+            {
+                PDFExporter.CreatePDF(saveFileDialog1.FileName, temp_net, Renderer.Layout);
+            }
+        }
     }
 }
