@@ -137,6 +137,16 @@ namespace NETVisualizer
 			}
 		}
 
+        public static int RenderWidth
+        {
+            get { return Instance.Width; }
+        }
+
+        public static int RenderHeight
+        {
+            get { return Instance.Height; }
+        }
+
         public static bool CurvedEdges
         {
             get;
@@ -252,12 +262,12 @@ namespace NETVisualizer
         /// <param name="screencoord">The screen coordinates to unproject into world coordinates</param>
         /// <returns>World coordinates</returns>
 		[MethodImpl(MethodImplOptions.Synchronized)]
-		OpenTK.Vector3 ScreenToWorld(OpenTK.Vector3 screencoord)
+		internal static OpenTK.Vector3 ScreenToWorld(OpenTK.Vector3 screencoord)
 		{
 			OpenTK.Vector3 worldcoord = new OpenTK.Vector3();
-			screencoord.Y = Height-screencoord.Y;
+			screencoord.Y = Instance.Height-screencoord.Y;
 			screencoord.Z = 0;
-			OpenTK.Graphics.Glu.UnProject(screencoord, matView, matProj, viewport, out worldcoord);
+			OpenTK.Graphics.Glu.UnProject(screencoord, Instance.matView, Instance.matProj, Instance.viewport, out worldcoord);
 			return worldcoord;
 		}
 		

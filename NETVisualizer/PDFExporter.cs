@@ -19,8 +19,8 @@ namespace NETVisualizer
     public class PDFExporter
     {
 
-        public static Func<string, float> ComputeNodeSize = new Func<string, float>(delegate(string v) { return 2f; });
-        public static Func<Tuple<string, string>, float> ComputeEdgeWidth = new Func<Tuple<string, string>, float>(delegate(Tuple<string, string> e) { return 0.05f; });
+        private static float x_offset = 0;
+        private static float y_offset = 0;
 
         /// <summary>
         /// Creates a PDF from a network visualization
@@ -48,8 +48,15 @@ namespace NETVisualizer
             doc.Info.Subject = "Created by NETVisualizer";
 
             PdfPage page = doc.AddPage();
-            page.Size = PageSize.A4;
-            page.Orientation = PageOrientation.Landscape;
+
+            // Apply the proper scaling
+            Vector3 origin = Renderer.ScreenToWorld(new Vector3(0, 0, 0));
+            Vector3 bottomright = Renderer.ScreenToWorld(new Vector3(Renderer.RenderWidth, Renderer.RenderHeight, 0));
+            x_offset = origin.X;
+            y_offset = origin.Y;
+            page.Width = bottomright.X - origin.X;
+            page.Height = bottomright.Y - origin.Y;
+
 
             if (colorizer != null)
                 // Draw the network to the xgraphics object
@@ -81,23 +88,22 @@ namespace NETVisualizer
         {
             OpenTK.Vector3 p = layout.GetPositionOfNode(v);
 
-            double size = ComputeNodeSize(v);
+            double size = Renderer.ComputeNodeSize(v);
 
             if (!double.IsNaN(p.X) &&
                !double.IsNaN(p.Y) &&
                !double.IsNaN(p.Z))
-                g.DrawEllipse(new SolidBrush(colorizer[v]), p.X - size / 2d, p.Y - size / 2d, size, size);
+                g.DrawEllipse(new SolidBrush(colorizer[v]), p.X - size / 2d - x_offset, p.Y - size / 2d - y_offset, size, size);
         }
 
         private static void DrawEdge(XGraphics g, Tuple<string, string> e, LayoutProvider layout, NetworkColorizer colorizer)
         {
             string v = e.Item1;
             string w = e.Item2;
-            float width = ComputeEdgeWidth(e);
+            float width = Renderer.ComputeEdgeThickness(e);
             XColor color = colorizer[e];
 
             List<Vector2> points = new List<Vector2>();
-
 
             // Draw curved edge
             if (Renderer.CurvedEdges)
@@ -161,7 +167,7 @@ namespace NETVisualizer
             }
 
             for (int i = 1; i < points.Count; i++)
-                g.DrawLine(new XPen(color, width), points[i - 1].X, points[i - 1].Y, points[i].X, points[i].Y);
+                g.DrawLine(new XPen(color, width), points[i - 1].X-x_offset, points[i - 1].Y-y_offset, points[i].X-x_offset, points[i].Y-y_offset);
         }
     }
 }
