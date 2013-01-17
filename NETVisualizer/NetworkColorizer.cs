@@ -20,6 +20,7 @@ namespace NETVisualizer
         public Color DefaultVertexColor = Color.DarkSlateGray;
         public Color DefaultEdgeColor = Color.Gray;
         public Color DefaultBackgroundColor = Color.White;
+        public Color DefaultSelectedVertexColor = Color.Red;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="NETGen.Visualization.CustomColorIndexer"/> class.

@@ -33,7 +33,7 @@ namespace NETVisualizer
         /// <summary>
         /// A colorizer class that can be used to color vertices and edges
         /// </summary>
-        private NetworkColorizer _colorizer;
+        private static NetworkColorizer _colorizer;
 
         /// <summary>
         /// The layout algorithm
@@ -81,6 +81,8 @@ namespace NETVisualizer
         /// Whether or not to draw a red selection marker
         /// </summary>
 		private bool _drawMarker = false;
+
+        public static double MarkerSize;
 		
         /// <summary>
         /// A wait handle that will be signaled as soon as the device initialization has been completed
@@ -137,6 +139,12 @@ namespace NETVisualizer
 			}
 		}
 
+        public static NetworkColorizer Colorizer
+        {
+            get { return _colorizer; }
+            set { _colorizer = value; }
+        }
+
         public static int RenderWidth
         {
             get { return Instance.Width; }
@@ -189,6 +197,8 @@ namespace NETVisualizer
 			ComputeNodeSize = new Func<string, float>(v => {
 				return 2f;
 			});
+
+            MarkerSize = 2f;
 			
             // Set default edge thickness
 			ComputeEdgeThickness = new Func<Tuple<string,string>, float>( e => {
@@ -262,7 +272,7 @@ namespace NETVisualizer
         /// <param name="screencoord">The screen coordinates to unproject into world coordinates</param>
         /// <returns>World coordinates</returns>
 		[MethodImpl(MethodImplOptions.Synchronized)]
-		internal static OpenTK.Vector3 ScreenToWorld(OpenTK.Vector3 screencoord)
+		public static OpenTK.Vector3 ScreenToWorld(OpenTK.Vector3 screencoord)
 		{
 			OpenTK.Vector3 worldcoord = new OpenTK.Vector3();
 			screencoord.Y = Instance.Height-screencoord.Y;
@@ -290,7 +300,7 @@ namespace NETVisualizer
 				Vector3 p = Layout.GetPositionOfNode(v);										
 				p.Z = 0f;			
 
-				if ((p-clickPos).Length<dist && (p - clickPos).Length<2)
+				if ((p-clickPos).Length<dist && (p - clickPos).Length<MarkerSize)
 				{
 					dist = (p - clickPos).Length;
 					selected = v;
@@ -427,7 +437,7 @@ namespace NETVisualizer
 				DrawVertex(SelectedVertex, Color.Red, (int)(10*_zoom), ComputeNodeSize(SelectedVertex), true);
 			
 			if(_drawMarker)
-				DrawMarker(Color.Red, 10, 2);
+				DrawMarker(Colorizer.DefaultSelectedVertexColor, 20, MarkerSize);
 			
 			// Swap screen and backbuffer
 			SwapBuffers();
@@ -529,7 +539,7 @@ namespace NETVisualizer
         /// <summary>
         /// Draws a red marker used for selecting vertices
         /// </summary>
-		void DrawMarker(Color c, int segments, int radius)
+		void DrawMarker(Color c, int segments, double radius)
 		{
 			OpenTK.Vector3 pos = ScreenToWorld(new OpenTK.Vector3(Mouse.X, Mouse.Y, 0));
 			GL.Color3(c);
