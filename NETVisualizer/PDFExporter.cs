@@ -76,8 +76,9 @@ namespace NETVisualizer
                     return;
                 g.SmoothingMode = PdfSharp.Drawing.XSmoothingMode.HighQuality;
                 g.Clear(Color.White);
-                foreach (var e in n.GetEdgeArray())
-                    DrawEdge(g, e, layout, colorizer);
+                foreach (var e in n.GetEdgeArray())                    
+                    if (string.Compare(e.Item1, e.Item2) >= 0)
+                        DrawEdge(g, e, layout, colorizer);
                 foreach (string v in n.GetVertexArray())
                     DrawVertex(g, v, layout, colorizer);
             }
