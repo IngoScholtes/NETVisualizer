@@ -16,7 +16,7 @@ namespace NETVisualizer.Demo
         static void Main(string[] args)
         {
             // Create a random network
-            SimpleNetwork net = SimpleNetwork.ReadFromEdgeList("datev.edges");
+            SimpleNetwork net = SimpleNetwork.ReadFromEdgeList("demo.edges");
 
             // We use a custom coloring
             NetworkColorizer colors = new NetworkColorizer();
@@ -28,7 +28,7 @@ namespace NETVisualizer.Demo
             Renderer.CurvedEdges = true;
 
             // Fire up the visualizer window
-            Renderer.Start(net, new NETVisualizer.Layouts.FruchtermanReingold.FRLayout(30), colors);
+            Renderer.Start(net, new NETVisualizer.Layouts.FruchtermanReingold.FRLayout(10), colors);
 
             // Trigger the layout
             Renderer.Layout.DoLayoutAsync();            
