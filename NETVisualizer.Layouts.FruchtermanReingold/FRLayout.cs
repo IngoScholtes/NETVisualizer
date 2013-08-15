@@ -25,10 +25,42 @@ namespace NETVisualizer.Layouts.FruchtermanReingold
         /// </summary>
         public static Random r = new Random();
 
-        /// <summary>
-        ///  The number of iterations to be used in the computation of vertex positions
-        /// </summary>
-        private int _iterations = 0;
+        public double AreaMultiplicator
+        {
+            get;
+            set;
+        }
+
+        public double SpeedDivisor
+        {
+            get;
+            set;
+        }
+
+        public double Speed
+        {
+            get;
+            set;
+        }
+
+        public double Gravity
+        {
+            get;
+            set;
+        }
+
+        public double RepulsionFactor
+        {
+            get;
+            set;
+        }
+
+        public int Iterations
+        {
+            get;
+            set;
+        } 
+
 
         /// <summary>
         /// A concurrent dictionary that keeps the vertex positions
@@ -47,9 +79,14 @@ namespace NETVisualizer.Layouts.FruchtermanReingold
         /// <param name="iterations"></param>
         public FRLayout(int iterations)
         {
-            _iterations = iterations;
+            Iterations = iterations;
+            RepulsionFactor = 1d;
+            AreaMultiplicator = 10000d;
+            Speed = 1d;
+            SpeedDivisor = 800d;
+            Gravity = 10d;
+
             _vertexPositions = new ConcurrentDictionary<string, Vector3>();
-            _dirtyVertices = new ConcurrentBag<string>();
         }
 
         /// <summary>
@@ -62,12 +99,7 @@ namespace NETVisualizer.Layouts.FruchtermanReingold
         {
             base.Init(width, height, network);
 
-            // Generate random initial positions and mark all vertices as "dirty"
-            foreach (string v in network.GetVertexArray())
-            {
-                _vertexPositions[v] = new Vector3((float) (r.NextDouble() * width), (float) (r.NextDouble() * height), 1f);
-                _dirtyVertices.Add(v);
-            }
+            CreateRandomState();
 
             network.OnVertexChanged += new VertexChangedHandler(network_OnVertexChanged);
         }
@@ -95,6 +127,16 @@ namespace NETVisualizer.Layouts.FruchtermanReingold
             return  _vertexPositions[v];
         }
 
+        private void CreateRandomState()
+        {
+            _dirtyVertices = new ConcurrentBag<string>();
+            foreach (string v in base.Network.GetVertexArray())
+            {
+                _vertexPositions[v] = new Vector3((float)(r.NextDouble() * base.Width - base.Width / 2d), (float)(r.NextDouble() * base.Height - base.Height / 2d), 1f);
+                _dirtyVertices.Add(v);
+            }
+        }   
+
         /// <summary>
         /// Computes the position of all vertices of a network
         /// </summary>
@@ -102,82 +144,74 @@ namespace NETVisualizer.Layouts.FruchtermanReingold
         public override void DoLayout()
         {
             DateTime start = DateTime.Now;
-            double _area = Width * Height;
-            double _k = Math.Sqrt(_area / (double)Network.GetVertexCount());
-            _k *= 0.75d;
+            double area = Width * Height;
 
             // The displacement calculated for each vertex in each step
-            var disp = new ConcurrentDictionary<string, Vector3>(System.Environment.ProcessorCount, (int) Network.GetVertexCount());
+            var disp = new ConcurrentDictionary<string, Vector3>(System.Environment.ProcessorCount, (int)Network.GetVertexCount());
 
-            double t = Width / 10;
-            double tempstep = t / (double)_iterations;
+            // Some area dependent parameters
+            double maxDist = (Math.Sqrt(area * AreaMultiplicator) / 10d);
+            double k = Math.Sqrt(AreaMultiplicator * area) / (1d + Network.GetVertexCount());
 
             var vertices = Network.GetVertexArray();
             var edges = Network.GetEdgeArray();
 
-            for (int i = 0; i < _iterations; i++)
+            foreach (string v in vertices)
+                disp[v] = new Vector3(0f, 0f, 1f);
+
+            for (int i = 0; i < Iterations; i++)
             {
                 // parallely compute repulsive forces of nodes to every new node
 #if DEBUG
-                foreach(var v in _dirtyVertices)
+                foreach (var v in vertices)
 #else
                 Parallel.ForEach(_dirtyVertices, v =>
 #endif
                 {
-                    disp[v] = new Vector3(0f, 0f, 1f);
-
-                    // computation of repulsive forces
                     foreach (string u in vertices)
                     {
                         if (v != u)
                         {
+                            // Compute repulsive force
+
                             Vector3 delta = _vertexPositions[v] - _vertexPositions[u];
-                            disp[v] = disp[v] + Vector3.Multiply(Vector3.Divide(delta, delta.Length), (float) repulsion(delta.Length, _k));
+                            disp[v] = disp[v] + Vector3.Multiply(Vector3.Divide(delta, delta.Length), (float)(RepulsionFactor * k * k / delta.Length));
+
+                            // Compute attractive force
+                            if (_dirtyVertices.Contains(v))
+                                disp[v] = disp[v] - Vector3.Multiply(Vector3.Divide(delta, delta.Length), (float)attraction(delta.Length, k, v, u));
+                            if (_dirtyVertices.Contains(u))
+                                disp[u] = disp[u] + Vector3.Multiply(Vector3.Divide(delta, delta.Length), (float)attraction(delta.Length, k, v, u));
                         }
                     }
                 }
 #if !DEBUG
-                );
+);
 #endif
-
-                // Parallely calculate attractive forces for all edges
-#if DEBUG
-                foreach(var e in edges)
-#else
-                Parallel.ForEach(edges, e =>
-#endif
+                foreach (string v in _dirtyVertices)
                 {
-                    string v = e.Item1;
-                    string w = e.Item2;
-                    if (_vertexPositions.ContainsKey(v) && _vertexPositions.ContainsKey(w) && v!=w)
-                    {
-                        Vector3 delta = _vertexPositions[v] - _vertexPositions[w];
-                        if (_dirtyVertices.Contains(v))
-                            disp[v] = disp[v] - Vector3.Multiply(Vector3.Divide(delta, delta.Length), (float) attraction(delta.Length, _k));
-                        if (_dirtyVertices.Contains(w))
-                            disp[w] = disp[w] + Vector3.Multiply(Vector3.Divide(delta, delta.Length), (float) attraction(delta.Length, _k));
-                    }
+                    double dist = disp[v].Length;
+                    double new_x = disp[v].X - (0.01d * k * Gravity * _vertexPositions[v].X);
+                    double new_y = disp[v].Y - (0.01d * k * Gravity * _vertexPositions[v].Y);
+                    disp[v] = new Vector3((float)new_x, (float)new_y, 1f);
                 }
-#if !DEBUG
-                );
-#endif
-                // Limit to frame and include temperature cooling that reduces displacement step by step
 #if DEBUG
-                foreach(var v in _dirtyVertices)
+                foreach (var v in _dirtyVertices)
 #else
                 Parallel.ForEach(_dirtyVertices, v =>
 #endif
                 {
-                    Vector3 vPos = _vertexPositions[v] + Vector3.Multiply(Vector3.Divide(disp[v], disp[v].Length), (float) Math.Min(disp[v].Length, t));
-                    vPos.X = (float) Math.Min(Width - 10, Math.Max(10, vPos.X));
-                    vPos.Y = (float) Math.Min(Height - 10, Math.Max(10, vPos.Y));
+                    Vector3 vPos = _vertexPositions[v] + Vector3.Multiply(Vector3.Divide(disp[v], disp[v].Length),
+                        (float)Math.Min(disp[v].Length, maxDist * (Speed / SpeedDivisor)));
+                    // We skip the limitation to a certain frame, since we can still pan and zoom ... 
+                    //vPos.X = (float)Math.Min(Width - 10, Math.Max(10, vPos.X));
+                    //vPos.Y = (float)Math.Min(Height - 10, Math.Max(10, vPos.Y));
                     _vertexPositions[v] = vPos;
+                    disp[v] = new Vector3(0f, 0f, 1f);
                 }
 #if !DEBUG
-                );
+);
 #endif
-                t -= tempstep;
-                start = DateTime.Now;
             }
             _dirtyVertices = new ConcurrentBag<string>();
         }
@@ -188,9 +222,10 @@ namespace NETVisualizer.Layouts.FruchtermanReingold
         /// <param name="d"></param>
         /// <param name="_k"></param>
         /// <returns></returns>
-        private double attraction(double d, double _k)
+        private double attraction(double distance, double k, string v, string w)
         {
-            return Math.Pow(d, 2d) / _k;
+            double attraction = this.Network.GetSuccessorArray(v).Contains(w) ? distance * distance / k : 0d;
+            return attraction * AreaMultiplicator;
         }
 
         /// <summary>
