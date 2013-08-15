@@ -155,6 +155,10 @@ namespace NETVisualizer
             get { return Instance.Height; }
         }
 
+        public static Vector3 Origin;
+
+        public static Vector3 Bottomright;      
+
         public static bool CurvedEdges
         {
             get;
@@ -277,6 +281,7 @@ namespace NETVisualizer
 			OpenTK.Vector3 worldcoord = new OpenTK.Vector3();
 			screencoord.Y = Instance.Height-screencoord.Y;
 			screencoord.Z = 0;
+            
 			OpenTK.Graphics.Glu.UnProject(screencoord, Instance.matView, Instance.matProj, Instance.viewport, out worldcoord);
 			return worldcoord;
 		}
@@ -318,7 +323,7 @@ namespace NETVisualizer
         /// </summary>       
 		void Mouse_WheelChanged(object sender, MouseWheelEventArgs e)
 		{
-			_zoom += e.DeltaPrecise/4f;
+			_zoom += e.DeltaPrecise/16f;
 		}
 		
         /// <summary>
@@ -345,6 +350,10 @@ namespace NETVisualizer
             GL.Hint(HintTarget.LineSmoothHint, HintMode.Nicest);
 			GL.Ortho(0, Width, Height, 0, -1, 1);
 			GL.Viewport(0, 0, Width, Height);
+
+            // Apply the proper scaling
+            Origin = Renderer.ScreenToWorld(new Vector3(0, 0, 0));
+            Bottomright = Renderer.ScreenToWorld(new Vector3(Renderer.RenderWidth, Renderer.RenderHeight, 0));
 			
 			// Store matrices for unprojecting ... 
 			GL.GetDouble(GetPName.ModelviewMatrix, matView);
@@ -370,6 +379,10 @@ namespace NETVisualizer
 			GL.GetDouble(GetPName.ModelviewMatrix, matView);
 			GL.GetDouble(GetPName.ProjectionMatrix, matProj);
 			GL.GetInteger(GetPName.Viewport, viewport);
+
+            // Apply the proper scaling
+            Origin = Renderer.ScreenToWorld(new Vector3(0, 0, 0));
+            Bottomright = Renderer.ScreenToWorld(new Vector3(Renderer.RenderWidth, Renderer.RenderHeight, 0));
 			
 		 	GL.ClearColor(_colorizer.DefaultBackgroundColor);
 		}
@@ -398,7 +411,11 @@ namespace NETVisualizer
 			GL.MatrixMode(MatrixMode.Projection);
 			GL.LoadIdentity();
 			GL.Ortho(0, Width, Height, 0, -1, 1);
-			GL.Viewport(0, 0, Width, Height);		
+			GL.Viewport(0, 0, Width, Height);
+
+            // Apply the proper scaling
+            Origin = Renderer.ScreenToWorld(new Vector3(0, 0, 0));
+            Bottomright = Renderer.ScreenToWorld(new Vector3(Renderer.RenderWidth, Renderer.RenderHeight, 0));
 			
 			// Apply panning and zooming state			
 			GL.Scale(_zoom, _zoom, _zoom);
@@ -431,7 +448,7 @@ namespace NETVisualizer
 			
 			// Draw the vertices
 			foreach(string v in _network.GetVertexArray())
-                DrawVertex(v, _colorizer[v], (int)(10 * _zoom), ComputeNodeSize(v));
+                DrawVertex(v, _colorizer[v], (int)(30 * _zoom), ComputeNodeSize(v));
 			
 			if(SelectedVertex != null)
 				DrawVertex(SelectedVertex, Color.Red, (int)(10*_zoom), ComputeNodeSize(SelectedVertex), true);

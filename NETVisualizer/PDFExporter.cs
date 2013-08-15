@@ -47,15 +47,11 @@ namespace NETVisualizer
             doc.Info.Title = "Network";
             doc.Info.Subject = "Created by NETVisualizer";
 
-            PdfPage page = doc.AddPage();
-
-            // Apply the proper scaling
-            Vector3 origin = Renderer.ScreenToWorld(new Vector3(0, 0, 0));
-            Vector3 bottomright = Renderer.ScreenToWorld(new Vector3(Renderer.RenderWidth, Renderer.RenderHeight, 0));
-            x_offset = origin.X;
-            y_offset = origin.Y;
-            page.Width = bottomright.X - origin.X;
-            page.Height = bottomright.Y - origin.Y;
+            PdfPage page = doc.AddPage();            
+            x_offset = Renderer.Origin.X;
+            y_offset = Renderer.Origin.Y;
+            page.Width = Renderer.Bottomright.X - Renderer.Origin.X;
+            page.Height = Renderer.Bottomright.Y - Renderer.Origin.Y;
 
 
             if (colorizer != null)
