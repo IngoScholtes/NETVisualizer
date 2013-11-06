@@ -48,6 +48,11 @@ namespace NETVisualizer.TemporalNets
                 return Network[Network.Keys.ElementAt(CurrentTime)].Count;
         }
 
+        public bool Edge(string v, string w)
+        {
+            return Network.AggregateNetwork.Edge(v, w);
+        }
+
         public string[] GetPredecessorArray(string w)
         {
             return Network.AggregateNetwork.GetPredecessors(w).ToArray();

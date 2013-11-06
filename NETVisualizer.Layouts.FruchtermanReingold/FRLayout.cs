@@ -68,11 +68,6 @@ namespace NETVisualizer.Layouts.FruchtermanReingold
         private ConcurrentDictionary<string, Vector3> _vertexPositions;
 
         /// <summary>
-        /// A concurrent set of vertices for which new positions shall be calculated (e.g. because they were added or edges were changed)
-        /// </summary>
-        private ConcurrentBag<string> _dirtyVertices;
-
-        /// <summary>
         /// Creates a Fruchterman/Reingold layout using a given number of iterations for the computation of forces and positions. 
         /// A larger iterations value will enhance the layouting quality, but will require more computational resources
         /// </summary>
@@ -110,7 +105,6 @@ namespace NETVisualizer.Layouts.FruchtermanReingold
             if(!_vertexPositions.ContainsKey(vertex))
                 _vertexPositions[vertex] = new Vector3((float)(r.NextDouble() * Width), (float)(r.NextDouble() * Height), 1f);
 
-            _dirtyVertices.Add(vertex);
         }
 
         /// <summary>
@@ -129,11 +123,9 @@ namespace NETVisualizer.Layouts.FruchtermanReingold
 
         private void CreateRandomState()
         {
-            _dirtyVertices = new ConcurrentBag<string>();
             foreach (string v in base.Network.GetVertexArray())
             {
                 _vertexPositions[v] = new Vector3((float)(r.NextDouble() * base.Width - base.Width / 2d), (float)(r.NextDouble() * base.Height - base.Height / 2d), 1f);
-                _dirtyVertices.Add(v);
             }
         }   
 
@@ -163,57 +155,54 @@ namespace NETVisualizer.Layouts.FruchtermanReingold
             {
                 // parallely compute repulsive forces of nodes to every new node
 #if DEBUG
-                foreach (var v in vertices)
+                foreach (var v in vertices)//
 #else
-                Parallel.ForEach(_dirtyVertices, v =>
+                Parallel.ForEach(vertices, v =>
 #endif
-                {
-                    foreach (string u in vertices)
                     {
-                        if (v != u)
+                        foreach (string u in vertices)
                         {
-                            // Compute repulsive force
+                            if (v != u)
+                            {
+                                // Compute repulsive force
 
-                            Vector3 delta = _vertexPositions[v] - _vertexPositions[u];
-                            disp[v] = disp[v] + Vector3.Multiply(Vector3.Divide(delta, delta.Length), (float)(RepulsionFactor * k * k / delta.Length));
+                                Vector3 delta = _vertexPositions[v] - _vertexPositions[u];
+                                disp[v] = disp[v] + Vector3.Multiply(Vector3.Divide(delta, delta.Length), (float)(RepulsionFactor * k * k / delta.Length));
 
-                            // Compute attractive force
-                            if (_dirtyVertices.Contains(v))
+                                // Compute attractive force
                                 disp[v] = disp[v] - Vector3.Multiply(Vector3.Divide(delta, delta.Length), (float)attraction(delta.Length, k, v, u));
-                            if (_dirtyVertices.Contains(u))
                                 disp[u] = disp[u] + Vector3.Multiply(Vector3.Divide(delta, delta.Length), (float)attraction(delta.Length, k, v, u));
+                            }
                         }
                     }
-                }
 #if !DEBUG
-);
+                );
 #endif
-                foreach (string v in _dirtyVertices)
+                foreach (string v in vertices)
                 {
-                    double dist = disp[v].Length;
-                    double new_x = disp[v].X - (0.01d * k * Gravity * _vertexPositions[v].X);
-                    double new_y = disp[v].Y - (0.01d * k * Gravity * _vertexPositions[v].Y);
-                    disp[v] = new Vector3((float)new_x, (float)new_y, 1f);
+                        double dist = disp[v].Length;
+                        double new_x = disp[v].X - (0.01d * k * Gravity * _vertexPositions[v].X);
+                        double new_y = disp[v].Y - (0.01d * k * Gravity * _vertexPositions[v].Y);
+                        disp[v] = new Vector3((float)new_x, (float)new_y, 1f);
                 }
 #if DEBUG
-                foreach (var v in _dirtyVertices)
+                foreach (var v in vertices)
 #else
-                Parallel.ForEach(_dirtyVertices, v =>
+                Parallel.ForEach(vertices, v =>
 #endif
-                {
-                    Vector3 vPos = _vertexPositions[v] + Vector3.Multiply(Vector3.Divide(disp[v], disp[v].Length),
-                        (float)Math.Min(disp[v].Length, maxDist * (Speed / SpeedDivisor)));
-                    // We skip the limitation to a certain frame, since we can still pan and zoom ... 
-                    //vPos.X = (float)Math.Min(Width - 10, Math.Max(10, vPos.X));
-                    //vPos.Y = (float)Math.Min(Height - 10, Math.Max(10, vPos.Y));
-                    _vertexPositions[v] = vPos;
-                    disp[v] = new Vector3(0f, 0f, 1f);
-                }
+                    {
+                        Vector3 vPos = _vertexPositions[v] + Vector3.Multiply(Vector3.Divide(disp[v], disp[v].Length),
+                            (float)Math.Min(disp[v].Length, maxDist * (Speed / SpeedDivisor)));
+                        // We skip the limitation to a certain frame, since we can still pan and zoom ... 
+                        //vPos.X = (float)Math.Min(Width - 10, Math.Max(10, vPos.X));
+                        //vPos.Y = (float)Math.Min(Height - 10, Math.Max(10, vPos.Y));
+                        _vertexPositions[v] = vPos;
+                        disp[v] = new Vector3(0f, 0f, 1f);
+                    }
 #if !DEBUG
-);
+                );
 #endif
             }
-            _dirtyVertices = new ConcurrentBag<string>();
         }
 
         /// <summary>
@@ -224,7 +213,7 @@ namespace NETVisualizer.Layouts.FruchtermanReingold
         /// <returns></returns>
         private double attraction(double distance, double k, string v, string w)
         {
-            double attraction = this.Network.GetSuccessorArray(v).Contains(w) ? distance * distance / k : 0d;
+            double attraction = this.Network.Edge(v,w) ? distance * distance / k : 0d;
             return attraction * AreaMultiplicator;
         }
 

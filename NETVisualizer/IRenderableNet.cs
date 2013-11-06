@@ -37,6 +37,14 @@ namespace NETVisualizer
         string[] GetSuccessorArray(string v);
 
         /// <summary>
+        /// Returns whether an edge exists
+        /// </summary>
+        /// <param name="v"></param>
+        /// <param name="w"></param>
+        /// <returns></returns>
+        bool Edge(string v, string w);
+
+        /// <summary>
         /// Returns all predecessors of a particular node
         /// </summary>
         /// <param name="w"></param>

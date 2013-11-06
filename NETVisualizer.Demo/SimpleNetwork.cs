@@ -31,6 +31,11 @@ namespace NETVisualizer.Demo
             _vertices.Add(v);
         }
 
+        public bool Edge(string v, string w)
+        {
+            return _edges.Contains(new Tuple<string, string>(v, w));
+        }
+
         /// <summary>
         /// Adds an undirected edge to the network
         /// </summary>
